@@ -1,0 +1,31 @@
+Pre-requisites
+--------------
+
+Paramiko and Netmiko python modules are required
+Check with "pip list"
+Load with "pip install xxxxx"
+
+Netmiko hack
+-------------
+THIS IS NOT RECOMMENDED
+I'm sure there is a more elegant solution to this but no time to research right now.
+
+In order for Netmiko to connect to an MXK the following file must be
+changed.
+
+Find and connect to the asymmetric folder in your python2.7 site packages
+
+Linux/Mac -> Python/2.7/site-packages/cryptography/hazmat/primitives/asymmetric
+Windows -> Python27/Lib/site-packages/cryptography/hazmat/primitives/asymmetric
+
+Open the dsa.py file and amend the "def _check_dsa_parameters(parameters)"
+function by commenting out the first 2 statements as per below.
+
+def _check_dsa_parameters(parameters):
+   # if utils.bit_length(parameters.p) not in [1024, 2048, 3072]:
+       # raise ValueError("p must be exactly 1024, 2048, or 3072 bits long")
+    if utils.bit_length(parameters.q) not in [160, 256]:
+        raise ValueError("q must be exactly 160 or 256 bits long")
+
+    if not (1 < parameters.g < parameters.p):
+        raise ValueError("g, p don't satisfy 1 < g < p.")
