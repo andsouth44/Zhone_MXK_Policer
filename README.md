@@ -1,9 +1,7 @@
 ## MXK_policer
 
-Two Python scripts, one that retrieves port and policer information from a Zhone
-MXK 819/319, massages the data and outputs a CSV file containing a map
-of each port to corresponding policer, and, one that modifies policers on a Zhone
-MXK819/319 based on an input CSV file.
+Various Python scripts to retrieve information from a Zhone
+MXK 819/319 CLI.
 
 The scripts were written for Python 2.7
 
