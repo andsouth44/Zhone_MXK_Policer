@@ -1,6 +1,6 @@
 
 """
-Module to retrieve transmit and recieve port discards for each port on a Zhone MXK819/319 and output a CSV file.
+Module to retrieve transmit packets and transmit discards for each port on a Zhone MXK819/319 and output a CSV file.
 """
 
 import csv
@@ -11,7 +11,6 @@ import pprint
 import collections
 
 port_numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-#port_numbers = [2]
 
 """
 Gather connection information
@@ -58,14 +57,13 @@ device.disconnect()
 print ('Disconnected from OLT, formulating report.....')
 
 """
-Loop over stats list and extract the transmit and receive drops. Save in ordered dictionary 'results'.
+Loop over stats list and extract the transmit packets and transmit discards. Save in ordered dictionary 'results'.
 """
 
 results = collections.OrderedDict()
 
 for entry in stats_list:
     thing = " ".join(entry.split())
-    print thing.split(' ')
     try:
         if ":" in thing.split(' ')[2]:
             short_name = thing.split(' ')[2]
@@ -73,7 +71,6 @@ for entry in stats_list:
             results[short_name + ' Tx Packets'] = thing.split(' ')[26]
             results[short_name + ' Tx Drops'] = thing.split(' ')[47]
         else:
-            print thing.split(' ')
             results[thing.split(' ')[2] + ' Tx Packets'] = thing.split(' ')[26]
             results[thing.split(' ')[2] + ' Tx Drops'] = thing.split(' ')[47]
     except Exception as e:
@@ -84,7 +81,7 @@ write contents of results dictionary to csv file
 """
 datenow = time.strftime("%b-%d")
 
-with open(host + '_policer_drop_report_' + datenow +'.csv', 'w') as new_file:
+with open(host + '_tx_discard_report_' + datenow +'.csv', 'w') as new_file:
     csv_writer = csv.writer(new_file)
     for key, value in results.items():
         csv_writer.writerow([key, value])
