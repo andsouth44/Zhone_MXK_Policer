@@ -39,7 +39,7 @@ Use splitlines() to convert members into a list of strings, where
 each string is a line from members.
 Loop over each line and use split to split each line into a list of strings.
 Use filter to remove all spaces.
-Find each line that has group '2' assigned and add the port details to list 'members_to_change'.
+Find each line that has group old_grp assigned and add the port details to list 'members_to_change'.
 """
 members_to_change = []
 
@@ -63,7 +63,7 @@ print members_to_change
 print 'Changing config group of ports......'
 
 """
-Loop over the ports in members_to_change and change the config group from x to y
+Loop over the ports in members_to_change and change the config group from old_grp to new_grp
 """
 for i in members_to_change:
     try:
