@@ -3,6 +3,7 @@
 Module to change config group from old_grp to new_grp for all ports on a MXK.
 """
 
+import socket
 import time
 import getpass
 from netmiko import ConnectHandler
@@ -11,7 +12,7 @@ from netmiko import ConnectHandler
 Gather connection information
 """
 
-host = raw_input('Enter hostname of OLT: ')
+host_or_ip = raw_input('Enter hostname or IP of OLT: ')
 username = raw_input('Enter username for OLT: ')
 password = getpass.getpass('Enter password for OLT: ')
 old_grp = raw_input('Enter old config group number: ')
@@ -19,6 +20,7 @@ new_grp = raw_input('Enter new config group number: ')
 # no handler type for zhone but 'cisco-ios' seems to work
 platform = 'cisco_ios'
 print ('Connecting....')
+host = socket.gethostbyname(host_or_ip)
 
 """
 Connect to device using Netmiko and run commands to gather info. Use 'cpe-mgr show config member' to gather info on all ports assigned to config groups.
@@ -38,10 +40,12 @@ time.sleep(3)
 Use splitlines() to convert members into a list of strings, where
 each string is a line from members.
 Loop over each line and use split to split each line into a list of strings.
-Use filter to remove all spaces.
+Use filter to remove all empty string.
 Find each line that has group old_grp assigned and add the port details to list 'members_to_change'.
 """
 members_to_change = []
+
+# print members.splitlines()
 
 for i in members.splitlines():
     member = i.split(' ')
@@ -56,10 +60,11 @@ for i in members.splitlines():
                 port = member[0]
                 members_to_change.append(port)
     except Exception as e:
-        print e
+        print member, e
 
 print 'Ports to be changed:'
 print members_to_change
+print ''
 print 'Changing config group of ports......'
 
 """
@@ -67,12 +72,18 @@ Loop over the ports in members_to_change and change the config group from old_gr
 """
 for i in members_to_change:
     try:
-        device.send_command('cpe-mgr delete config member {}'.format(i))
-        time.sleep(1)
-        device.send_command('cpe-mgr add config member {} group {}'.format(i, new_grp))
-        time.sleep(1)
-    except:
-        print 'Error'
+        parts = i.split('-')
+        shelf = parts[0]
+        slot = parts[1]
+        port = parts[2]
+        suffix = parts[3]
+        device.send_command('cpe-mgr delete config member {}/{}/{}/{}'.format(shelf,slot,port,suffix))
+        time.sleep(2)
+        device.send_command('cpe-mgr add config member {}/{}/{}/{} group {} path bkup/{}/{}/{}'.format(shelf,slot,port,suffix, new_grp, host, slot, port))
+        print 'Port {} completed.'.format(i)
+        time.sleep(2)
+    except Exception as e:
+        print 'Error: ',e
 
-
+device.disconnect()
 print ('Completed')
